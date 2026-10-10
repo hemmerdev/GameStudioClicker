@@ -9,6 +9,8 @@ Each milestone should be broken into learning-sized tasks before implementation.
 - Keep new systems simple and expand the architecture gradually.
 - Add tests selectively for important game rules and regressions.
 - The user does not want unit-test writing assigned to them.
+- Backward compatibility with older saves is deferred during development. The
+  user can delete incompatible saves and start fresh after save-format changes.
 
 ## Completed milestones
 
@@ -194,6 +196,78 @@ Each milestone should be broken into learning-sized tasks before implementation.
 - Expand location progression from a Bedroom/Shed through offices, corporate
   headquarters, skyscrapers, and eventually an outer-space studio.
 
+## Feature backlog
+
+Added 2026-10-10. These are planned follow-ups; Studio Level and location
+progression remains the active milestone. Bonus percentages are examples to
+playtest, not final balance values.
+
+### Worker ownership milestones
+
+- [ ] Add production bonuses for owning 10, 25, 50, and 100 employees of each
+  worker type, calculated separately for each tier.
+- [ ] Use +25% output at 10 workers and +50% at 25 workers as provisional examples;
+  decide the bonuses at 50 and 100 and whether milestone bonuses accumulate or
+  replace earlier bonuses.
+- [ ] Show earned milestones and progress toward the next one. Define how these
+  bonuses combine with existing targeted and global worker upgrades, and rebuild
+  them from ownership counts when loading so they cannot be awarded twice.
+
+### Bulk worker purchases
+
+- [ ] Add worker purchase quantity options of 1, 10, 100, and Max, with 1 as the
+  default selection.
+- [ ] Calculate the total cost using the increasing price of each successive
+  hire. Max buys the largest number of workers currently affordable.
+- [ ] Show the purchase quantity and total cost. Decide whether fixed quantities
+  of 10 and 100 require affording the full batch or allow a smaller partial batch.
+- [ ] Keep unlock requirements, XP per employee hired, lifetime hire statistics,
+  ownership milestones, production, and saving correct for bulk purchases.
+
+### Permanent achievement production bonuses
+
+- [ ] Add permanent production bonuses to qualifying achievements alongside their
+  existing XP rewards; +1% total output is a provisional reward example.
+- [ ] Decide which achievements grant bonuses, how their bonuses stack, and
+  whether total output includes both manual clicks and passive worker production.
+  Apply relevant worker bonuses to offline production too.
+- [ ] Derive bonuses from earned achievements so saving and loading retain them
+  without applying the same reward repeatedly.
+
+### Manual saving and export copies
+
+- [ ] Add a manual Save action with confirmation, using the existing game-save
+  workflow alongside autosaving.
+- [ ] Add an Export Save Copy action that writes current progress to a separate,
+  user-selected file while preserving the normal save file and its path.
+
+### Master audio toggle
+
+- [ ] Add one on/off control for all music and sound effects.
+- [ ] Preserve the separate music and SFX volume settings when audio is disabled,
+  restore those levels when enabled, and persist the master audio setting.
+
+### First-launch introduction and help
+
+- [ ] Show a welcome introduction explaining how to play on first launch, and
+  remember that it has been shown or dismissed.
+- [ ] Add a Help button to revisit guidance later, covering clicking, hiring,
+  upgrades, Studio XP and locations, saving, and offline production.
+
+### Current objective message
+
+- [ ] Show the player's current progression objective with its requirements and
+  progress, such as hiring an employee or qualifying for the next location.
+- [ ] Define which objective takes priority and update the message as goals are
+  completed so it always points toward a relevant next step.
+
+### Unlocked upgrade overview
+
+- [ ] Add a button that opens an overview of all unlocked active upgrades beyond
+  the dashboard's three-upgrade preview, including their effects and costs.
+- [ ] Decide whether the overview also includes purchased upgrades and how their
+  completed state is distinguished from upgrades still available to buy.
+
 ## Studio Level and locations — active implementation plan
 
 Each checkbox is a small task or verification checkpoint. Design choices and
@@ -322,16 +396,16 @@ Recommended XP rewards:
 - [ ] Add current location and `CanRelocate` / `TryRelocate` rules to `GameState`.
 - [ ] Require sufficient level and currency, reject the current/earlier location,
   and deduct the cost only on success. Moving forward retains earlier worker tiers.
-- [ ] Keep existing worker gates unchanged until location persistence and migration
-  are ready.
+- [ ] Keep existing worker gates unchanged until location persistence and the
+  relocation interface are ready.
 
-### Phase 8 — location persistence and existing saves
+### Phase 8 — location persistence
 
-- [ ] Add `CurrentLocationId` to `GameSaveData` and restore valid IDs safely.
-- [ ] Define missing/unknown-ID fallback and migration for saves already owning
-  higher-tier workers, so existing employees do not become invalid or disappear.
-- [ ] Decide whether this migration warrants the first explicit save-data version.
-- [ ] Assistant adds focused relocation and save-compatibility tests.
+- [x] Add `CurrentLocationId` to `GameSaveData` and restore valid IDs safely.
+- [x] Fall back to Bedroom for missing or unknown location IDs.
+- Migration of older saves and explicit save-data versioning are deferred during
+  development; they do not block the relocation interface or worker gates.
+- [ ] Assistant adds focused relocation and current-save restoration tests.
 
 ### Phase 9 — relocation interface
 
@@ -350,7 +424,7 @@ Recommended XP rewards:
 - [ ] Review active-upgrade availability so later-era purchases do not undermine
   location progression or create an XP deadlock before relocation.
 - [ ] Verify Intern-only starting progression, Small Office hires, continued access
-  to earlier workers, and migration behavior on an existing save.
+  to earlier workers, and location persistence after restarting with a fresh save.
 
 ### Phase 11 — polish, expand, and balance
 
@@ -393,7 +467,8 @@ Use `BALANCING_NOTES.md` as the starting point for a fresh-save playthrough and 
 ### 4. Evolve save-data compatibility
 
 - Add explicit save-data versioning when the first migration becomes necessary.
-- Introduce migration rules once preserving development saves becomes worthwhile.
+- Introduce migration rules when preserving existing saves becomes a requirement;
+  development currently permits resetting incompatible saves.
 - Consider atomic or backup-based saving if the persistence system grows.
 - Defer numeric overflow handling to a coordinated cleanup across currency,
   lifetime statistics, production multipliers, worker costs/counts, and Studio XP.

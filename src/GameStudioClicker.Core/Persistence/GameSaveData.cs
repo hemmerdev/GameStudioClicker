@@ -5,6 +5,7 @@ namespace GameStudioClicker.Core.Persistence
         // Only persistent values belong here; production rates and costs are recalculated when loading.
         public long LinesOfCode { get; set; }
         public long StudioExperience { get; set; } = 0;
+        public string CurrentLocationId { get; set; } = "bedroom";
         public long LifetimeLinesOfCode { get; set; }
         public long LifetimeManualClicks { get; set; }
         public long LifetimeExperience { get; set; }

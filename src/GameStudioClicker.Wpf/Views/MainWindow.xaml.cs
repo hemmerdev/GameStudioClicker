@@ -151,9 +151,12 @@ public partial class MainWindow : Window
         movement.BeginAnimation(TranslateTransform.XProperty, horizontalAnimation);
         movement.BeginAnimation(TranslateTransform.YProperty, verticalAnimation);
     }
-    private void MenuButton_Click(object sender, RoutedEventArgs e)
+    private void SharedWorkspace_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        _audioService.PlayMenuClickSound();
+        if (IsLoaded && e.OriginalSource == SharedWorkspace)
+        {
+            _audioService.PlayMenuClickSound();
+        }
     }
 
     private void MainWindowClosing(object? sender, CancelEventArgs e)

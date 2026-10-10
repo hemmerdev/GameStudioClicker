@@ -428,6 +428,17 @@ namespace GameStudioClicker.Core.Content
             };
         }
 
+        internal static IReadOnlyList<StudioLocation> CreateStudioLocations()
+        {
+            return new List<StudioLocation> {
+                new StudioLocation(
+                    "bedroom", "Bedroom", 1, 0,
+                    new List<string> { "intern" }),
+                new StudioLocation(
+                    "small_office", "Small Office", 5, 5000,
+                    new List<string> { "intern", "junior_developer", "senior_developer" }),
+            };
+        }
         internal static IReadOnlyList<Achievement> CreateAchievements()
         {
             Achievement helloWorld = new Achievement(

@@ -12,13 +12,13 @@
 
         <!-- Repeatable worker upgrades. -->
         <ItemsControl ItemsSource="{Binding WorkerUpgrades}"
-                      Width="1176"
-                      HorizontalAlignment="Center"
+                      Margin="0,0,8,0"
+                      HorizontalAlignment="Stretch"
                       VerticalAlignment="Top">
-            <!-- Keep worker cards in three equal-width columns. -->
+            <!-- Full-width roster rows fit the shared workspace at any window width. -->
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <WrapPanel/>
+                    <StackPanel />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
 
@@ -26,8 +26,8 @@
                 <DataTemplate>
                     <!-- The whole worker card purchases the represented worker. -->
                     <Button Height="110"
-                            Width="380"
-                            Margin="6"
+                            Margin="0,0,0,10"
+                            HorizontalAlignment="Stretch"
                             ToolTipService.ShowOnDisabled="True"
                             ToolTipService.InitialShowDelay="150"
                             RenderTransformOrigin="0.5,0.5"
@@ -294,6 +294,7 @@
                                         <!-- Cost of hiring the next employee -->
                                         <StackPanel Grid.Row="1"
                                                     Orientation="Horizontal"
+                                                    HorizontalAlignment="Left"
                                                     VerticalAlignment="Center">
 
                                             <TextBlock Text="Next Hire"
@@ -318,6 +319,16 @@
 
                                         </StackPanel>
 
+                                        <TextBlock Grid.Row="1"
+                                                   HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource SuccessBrush}">
+                                            <Run Text="{Binding CurrentLinesPerSecond,
+                                                 Mode=OneWay,
+                                                 Converter={StaticResource CompactNumberConverter}}" />
+                                            <Run Text=" / sec" />
+                                        </TextBlock>
                                     </Grid>
                                 </Grid>
 

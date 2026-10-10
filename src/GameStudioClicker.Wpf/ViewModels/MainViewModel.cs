@@ -24,6 +24,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     private bool _isDisposed;
     private string _currentSoundtrackTitle = string.Empty;
 
+
     public MainViewModel(GameState gameState, long offlineLinesEarned = 0)
     {
         _gameState = gameState ?? throw new ArgumentNullException(nameof(gameState));
@@ -90,6 +91,9 @@ public class MainViewModel : ViewModelBase, IDisposable
         PurchaseWorkerUpgradeCommand = new RelayCommand(
             ExecutePurchaseWorkerUpgrade,
             CanExecutePurchaseWorkerUpgrade);
+        RelocateCommand = new RelayCommand(
+            ExecuteRelocate,
+            CanExecuteRelocate);
         ToggleStatisticsCommand = new RelayCommand(ExecuteToggleStatistics);
         ToggleAchievementsCommand = new RelayCommand(ExecuteToggleAchievements);
         ToggleSettingsCommand = new RelayCommand(ExecuteToggleSettings);
@@ -101,7 +105,6 @@ public class MainViewModel : ViewModelBase, IDisposable
 
         _passiveTimer.Start();
     }
-
 
     private static IReadOnlyList<StatisticViewModel> CreateStatistics(
         GameState gameState)
@@ -140,6 +143,11 @@ public class MainViewModel : ViewModelBase, IDisposable
             ? "MAX LEVEL"
             : $"{CompactNumberFormatter.Format(ExperienceIntoCurrentLevel)} / " +
               $"{CompactNumberFormatter.Format(ExperienceNeededForNextLevel)} XP";
+    public string CurrentLocationName => _gameState.CurrentLocation.DisplayName;
+    public StudioLocation? NextLocation => _gameState.StudioLocations
+        .SkipWhile(location => location.Id != _gameState.CurrentLocation.Id) // Skip locations until we find the current one
+        .Skip(1) // Skip the current location to get the next one
+        .FirstOrDefault();
 
     // Navigation and view state
     public bool IsStatisticsViewVisible =>
@@ -189,6 +197,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     public RelayCommand ToggleStatisticsCommand { get; }
     public RelayCommand ToggleAchievementsCommand { get; }
     public RelayCommand ToggleSettingsCommand { get; }
+    public RelayCommand RelocateCommand { get; }
 
     public event EventHandler? SaveRequested;
     public event EventHandler? AchievementNotificationShown;
@@ -225,6 +234,25 @@ public class MainViewModel : ViewModelBase, IDisposable
 
         _achievementNotificationTimer.Stop();
         _achievementNotificationTimer.Tick -= AchievementNotificationTimer_Tick;
+    }
+
+    private bool CanExecuteRelocate(object? parameter)
+    {
+        var nextLocation = NextLocation;
+
+        return nextLocation is not null
+            ? _gameState.CanRelocate(nextLocation)
+            : false;
+    }
+
+    private void ExecuteRelocate(object? parameter)
+    {
+        var nextLocation = NextLocation;
+        if (nextLocation is not null && _gameState.TryRelocate(nextLocation))
+        {
+            SaveRequested?.Invoke(this, new EventArgs());
+            RefreshAll();
+        }
     }
 
     private void ExecuteWriteCode(object? parameter)
@@ -373,12 +401,15 @@ public class MainViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(ExperienceNeededForNextLevel));
         OnPropertyChanged(nameof(IsStudioLevelMax));
         OnPropertyChanged(nameof(StudioExperienceText));
+        OnPropertyChanged(nameof(CurrentLocationName));
+        OnPropertyChanged(nameof(NextLocation));
     }
 
     private void RefreshPurchaseCommands()
     {
         PurchaseActiveUpgradeCommand.RaiseCanExecuteChanged();
         PurchaseWorkerUpgradeCommand.RaiseCanExecuteChanged();
+        RelocateCommand.RaiseCanExecuteChanged();
     }
 
     private void RefreshActiveUpgradeStates()

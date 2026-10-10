@@ -12,9 +12,11 @@ namespace GameStudioClicker.Core.Models
 
         public IReadOnlyList<ActiveUpgrade> ActiveUpgrades { get; }
         public IReadOnlyList<WorkerUpgrade> WorkerUpgrades { get; }
+        public IReadOnlyList<StudioLocation> StudioLocations { get; }
         public IReadOnlyList<Achievement> Achievements { get; }
         public StudioProgression StudioProgression { get; }
 
+        public StudioLocation CurrentLocation { get; private set; }
         public event Action<Achievement>? AchievementEarned;
 
         // Lifetime stats
@@ -32,6 +34,8 @@ namespace GameStudioClicker.Core.Models
         {
             ActiveUpgrades = GameContentFactory.CreateActiveUpgrades();
             WorkerUpgrades = GameContentFactory.CreateWorkerUpgrades();
+            StudioLocations = GameContentFactory.CreateStudioLocations();
+            CurrentLocation = StudioLocations[0];
             Achievements = GameContentFactory.CreateAchievements();
             StudioProgression = new();
         }
@@ -170,6 +174,46 @@ namespace GameStudioClicker.Core.Models
             return false;
         }
 
+        public bool CanRelocate(StudioLocation location)
+        {
+            if (!StudioLocations.Contains(location) ||
+                (StudioProgression.Level < location.RequiredLevel) ||
+                (LinesOfCode < location.RelocationCost))
+            {
+                return false;
+            }
+
+            // Ensure that the next location comes after the current location in the list of locations.
+            int currentIndex = -1;
+            int targetIndex = -1;
+            for (int i = 0; i < StudioLocations.Count; i++)
+            {
+                if (StudioLocations[i] == CurrentLocation)
+                {
+                    currentIndex = i;
+                }
+                if (StudioLocations[i] == location)
+                {
+                    targetIndex = i;
+                }
+            }
+
+            return currentIndex >= 0 && targetIndex > currentIndex;
+        }
+
+        public bool TryRelocate(StudioLocation location)
+        {
+            if (!CanRelocate(location))
+            {
+                return false;
+            }
+
+            LinesOfCode -= location.RelocationCost;
+            CurrentLocation = location;
+            CheckForNewAchievements();
+            return true;
+        }
+
         // Worker production queries
         public long GetWorkerLinesPerSecond(WorkerUpgrade worker)
         {
@@ -219,20 +263,17 @@ namespace GameStudioClicker.Core.Models
 
         public long GetAchievementProgress(Achievement achievement)
         {
-            if (achievement is null)
-            {
-                throw new ArgumentNullException(nameof(achievement));
-            }
-
-            return achievement.RequirementType switch
-            {
-                AchievementRequirementType.ManualClicks => LifetimeManualClicks,
-                AchievementRequirementType.LifetimeLinesOfCode => LifetimeLinesOfCode,
-                AchievementRequirementType.EmployeesHired => LifetimeEmployeesHired,
-                AchievementRequirementType.ActiveUpgradesPurchased => LifetimeActiveUpgradesPurchased,
-                AchievementRequirementType.StudioLevel => StudioProgression.Level,
-                _ => throw new ArgumentOutOfRangeException(nameof(achievement.RequirementType)),
-            };
+            return achievement is null
+                ? throw new ArgumentNullException(nameof(achievement))
+                : achievement.RequirementType switch
+                {
+                    AchievementRequirementType.ManualClicks => LifetimeManualClicks,
+                    AchievementRequirementType.LifetimeLinesOfCode => LifetimeLinesOfCode,
+                    AchievementRequirementType.EmployeesHired => LifetimeEmployeesHired,
+                    AchievementRequirementType.ActiveUpgradesPurchased => LifetimeActiveUpgradesPurchased,
+                    AchievementRequirementType.StudioLevel => StudioProgression.Level,
+                    _ => throw new ArgumentOutOfRangeException(nameof(achievement.RequirementType)),
+                };
         }
 
         // Persistence
@@ -242,6 +283,7 @@ namespace GameStudioClicker.Core.Models
             {
                 LinesOfCode = this.LinesOfCode,
                 StudioExperience = StudioProgression.TotalExperience,
+                CurrentLocationId = this.CurrentLocation.Id,
                 LifetimeLinesOfCode = this.LifetimeLinesOfCode,
                 LifetimeManualClicks = this.LifetimeManualClicks,
                 LifetimeEmployeesHired = this.LifetimeEmployeesHired,
@@ -293,6 +335,10 @@ namespace GameStudioClicker.Core.Models
 
             LinesOfCode = Math.Max(0L, saveData.LinesOfCode);
             StudioProgression.RestoreExperience(saveData.StudioExperience);
+
+            CurrentLocation = StudioLocations
+                .FirstOrDefault(location => location.Id == saveData.CurrentLocationId)
+                ?? StudioLocations[0];
 
             // Statistics
             LifetimeLinesOfCode = Math.Max(0L, saveData.LifetimeLinesOfCode);

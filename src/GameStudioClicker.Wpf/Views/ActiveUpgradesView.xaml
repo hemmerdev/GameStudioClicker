@@ -12,22 +12,27 @@
         <TextBlock Text="Active Upgrades"
                    Style="{StaticResource SectionHeadingTextStyle}"
                    Margin="0,0,0,8"
-                   HorizontalAlignment="Center"/>
+                   HorizontalAlignment="Left"/>
 
-        <ItemsControl ItemsSource="{Binding ActiveUpgrades}">
+        <ScrollViewer Height="96"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Disabled"
+                      HorizontalContentAlignment="Left">
+        <ItemsControl ItemsSource="{Binding ActiveUpgrades}"
+                      HorizontalAlignment="Left">
             <!-- Arrange compact upgrade buttons from left to right. -->
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <WrapPanel Orientation="Horizontal" />
+                    <StackPanel Orientation="Horizontal" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
 
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <!-- One active-upgrade button -->
-                    <Button Width="88"
-                            Height="88"
-                            Margin="4,4,8,8"
+                    <Button Width="64"
+                            Height="64"
+                            Margin="0,4,12,8"
                             Padding="6"
                             ToolTipService.InitialShowDelay="150"
                             ToolTipService.BetweenShowDelay="0"
@@ -95,8 +100,8 @@
 
                         <Grid>
                             <Image Source="{Binding IconPath}"
-                                   Width="88"
-                                   Height="66"
+                                   Width="52"
+                                   Height="40"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    Stretch="Uniform"
@@ -240,6 +245,7 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+        </ScrollViewer>
 
     </StackPanel>
 </UserControl>

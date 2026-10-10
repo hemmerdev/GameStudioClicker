@@ -17,6 +17,86 @@
         FontFamily="{StaticResource BodyFontFamily}">
 
 
+    <Window.Resources>
+        <Style x:Key="WorkspaceTabItemStyle" TargetType="{x:Type TabItem}">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="Padding" Value="18,12" />
+            <Setter Property="MinHeight" Value="48" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabItem}">
+                        <Border x:Name="TabHeader"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                BorderThickness="0,0,0,2">
+                            <ContentPresenter x:Name="TabLabel"
+                                              ContentSource="Header"
+                                              Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              TextElement.Foreground="{StaticResource SecondaryTextBrush}"
+                                              TextElement.FontSize="14"
+                                              TextElement.FontWeight="SemiBold"
+                                              RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabHeader" Property="Background"
+                                        Value="{StaticResource SurfaceBrush}" />
+                                <Setter TargetName="TabLabel" Property="TextElement.Foreground"
+                                        Value="{StaticResource PrimaryTextBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabHeader" Property="Background"
+                                        Value="{StaticResource SurfaceBrush}" />
+                                <Setter TargetName="TabHeader" Property="BorderBrush"
+                                        Value="{StaticResource PrimaryCyanBrush}" />
+                                <Setter TargetName="TabLabel" Property="TextElement.Foreground"
+                                        Value="{StaticResource PrimaryCyanBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="TabHeader" Property="BorderBrush"
+                                        Value="{StaticResource GlowBlueBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="WorkspaceTabControlStyle" TargetType="{x:Type TabControl}">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabControl}">
+                        <Grid KeyboardNavigation.TabNavigation="Local">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="0,0,0,1">
+                                <TabPanel x:Name="HeaderPanel"
+                                          IsItemsHost="True"
+                                          KeyboardNavigation.TabIndex="1" />
+                            </Border>
+                            <ContentPresenter x:Name="PART_SelectedContentHost"
+                                              Grid.Row="1"
+                                              Margin="0,24,0,0"
+                                              ContentSource="SelectedContent"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <!-- Header and notifications. -->
@@ -26,46 +106,261 @@
         </Grid.RowDefinitions>
 
 
-        <StackPanel Orientation="Vertical"
-                    Grid.Row="0"
-                    VerticalAlignment="Top"
-                    HorizontalAlignment="Right">
+        <!-- Branding, status, and room for a future help control. -->
+        <Grid x:Name="GameHeader"
+              Grid.Row="0"
+              Height="116"
+              Margin="0,0,0,18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="360" />
+                <ColumnDefinition Width="64" />
+            </Grid.ColumnDefinitions>
 
+            <Image Source="/Assets/Branding/Logo/logo_game_studio_clicker.png"
+                   Width="240"
+                   Height="96"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Margin="0"
+                   Stretch="Uniform"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                   SnapsToDevicePixels="True" />
 
+            <views:ActiveUpgradesView x:Name="HeaderUpgrades"
+                                      Grid.Column="1"
+                                      Margin="24,0,16,0"
+                                      VerticalAlignment="Center" />
 
+            <StackPanel Orientation="Vertical"
+                        Grid.Column="2"
+                        VerticalAlignment="Bottom"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,6,0">
 
-            <!-- Optional save confirmation overlay; currently kept hidden by ViewModel usage. -->
-            <Border Grid.Row="0"
-                    Panel.ZIndex="1"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    Padding="10,6"
-                    Background="{StaticResource SurfaceBrush}"
-                    BorderBrush="{StaticResource BorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="6">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Visibility"
-                                Value="Collapsed" />
+                <!-- Optional save confirmation overlay; currently kept hidden by ViewModel usage. -->
+                <Border Grid.Row="0"
+                        Panel.ZIndex="1"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Padding="10,6"
+                        Background="{StaticResource SurfaceBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility"
+                                    Value="Collapsed" />
 
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding HasSaveConfirmation}"
-                                         Value="True">
-                                <Setter Property="Visibility"
-                                        Value="Visible" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasSaveConfirmation}"
+                                             Value="True">
+                                    <Setter Property="Visibility"
+                                            Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
 
-                <TextBlock Text="Game Saved!"
-                           FontSize="13"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource SuccessBrush}" />
-            </Border>
+                    <TextBlock Text="Game Saved!"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource SuccessBrush}" />
+                </Border>
 
-        </StackPanel>
+            </StackPanel>
+
+            <!-- Music and offline earnings share a stable header slot. -->
+            <Grid Grid.Column="2"
+                  Margin="0,0,6,0"
+                  VerticalAlignment="Center">
+                <Border x:Name="NowPlayingPanel"
+                        Grid.Row="0"
+                        Width="260"
+                        Height="48"
+                        Margin="0"
+                        Background="{StaticResource SurfaceBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="12,8"
+                        HorizontalAlignment="Right">
+                    <Border.RenderTransform>
+                        <TranslateTransform X="16"/>
+                    </Border.RenderTransform>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Hidden" />
+
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasOfflineEarnings}"
+                                             Value="False">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard Storyboard="{StaticResource VisualizerFadeInStoryboard}" />
+                                    </DataTrigger.EnterActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+
+                    <Border.Triggers>
+                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                            <BeginStoryboard Storyboard="{StaticResource VisualizerJumpStoryboard}" />
+                        </EventTrigger>
+                    </Border.Triggers>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Orientation="Vertical"
+                                    Grid.Column="0">
+
+                            <TextBlock Text="NOW PLAYING "
+                                       FontFamily="{StaticResource DisplayFontFamily}"
+                                       FontSize="8"
+                                       Foreground="{StaticResource PrimaryCyanBrush}" />
+
+                            <TextBlock Text="{Binding CurrentSoundtrackTitle}"
+                                       FontSize="10"
+                                       FontFamily="{StaticResource DisplayFontFamily}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                       Margin="0,5,0,0"
+                                       TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    Height="22"
+                                    Margin="10,0,0,0"
+                                    VerticalAlignment="Bottom"
+                                    HorizontalAlignment="Right"
+                                    Orientation="Horizontal">
+
+                            <Border Width="4"
+                                    Height="20"
+                                    Margin="2,0,0,0"
+                                    VerticalAlignment="Bottom"
+                                    Background="{StaticResource PrimaryCyanBrush}"
+                                    CornerRadius="1"
+                                    RenderTransformOrigin="0.5,1">
+
+                                <Border.RenderTransform>
+                                    <ScaleTransform x:Name="VisualizerBar1Scale"
+                                                    ScaleY="0.15"/>
+                                </Border.RenderTransform>
+
+                            </Border>
+
+                            <Border Width="4"
+                                    Height="20"
+                                    Margin="2,0,0,0"
+                                    VerticalAlignment="Bottom"
+                                    Background="{StaticResource PrimaryCyanBrush}"
+                                    CornerRadius="1"
+                                    RenderTransformOrigin="0.5,1">
+
+                                <Border.RenderTransform>
+                                    <ScaleTransform x:Name="VisualizerBar2Scale"
+                                                    ScaleY="0.25"/>
+                                </Border.RenderTransform>
+
+                            </Border>
+
+                            <Border Width="4"
+                                    Height="20"
+                                    Margin="2,0,0,0"
+                                    VerticalAlignment="Bottom"
+                                    Background="{StaticResource PrimaryCyanBrush}"
+                                    CornerRadius="1"
+                                    RenderTransformOrigin="0.5,1">
+
+                                <Border.RenderTransform>
+                                    <ScaleTransform x:Name="VisualizerBar3Scale"
+                                                    ScaleY="0.35"/>
+                                </Border.RenderTransform>
+
+                            </Border>
+
+                            <Border Width="4"
+                                    Height="20"
+                                    Margin="2,0,0,0"
+                                    VerticalAlignment="Bottom"
+                                    Background="{StaticResource PrimaryCyanBrush}"
+                                    CornerRadius="1"
+                                    RenderTransformOrigin="0.5,1">
+
+                                <Border.RenderTransform>
+                                    <ScaleTransform x:Name="VisualizerBar4Scale"
+                                                    ScaleY="0.45"/>
+                                </Border.RenderTransform>
+
+                            </Border>
+
+                            <Border Width="4"
+                                    Height="20"
+                                    Margin="2,0,0,0"
+                                    VerticalAlignment="Bottom"
+                                    Background="{StaticResource PrimaryCyanBrush}"
+                                    CornerRadius="1"
+                                    RenderTransformOrigin="0.5,1">
+
+                                <Border.RenderTransform>
+                                    <ScaleTransform x:Name="VisualizerBar5Scale"
+                                                    ScaleY="0.55"/>
+                                </Border.RenderTransform>
+
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Temporary message shown when offline progress is applied. -->
+                <Border Grid.Row="0"
+                        MaxWidth="360"
+                        VerticalAlignment="Center"
+                        Padding="10,8"
+                        Margin="0"
+                        HorizontalAlignment="Right"
+                        Background="{StaticResource SurfaceBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Opacity="0">
+
+                    <Border.RenderTransform>
+                        <TranslateTransform X="16" />
+                    </Border.RenderTransform>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Hidden" />
+
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasOfflineEarnings}"
+                                             Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard Storyboard="{StaticResource OfflineEarningsStoryboard}" />
+                                    </DataTrigger.EnterActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+
+                    <TextBlock Text="{Binding OfflineEarningsMessage}"
+                               Foreground="{StaticResource SecondaryTextBrush}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center" />
+                </Border>
+            </Grid>
+        </Grid>
 
 
         <!-- Achievement notification overlay. -->
@@ -143,658 +438,144 @@
             </Grid>
         </Border>
 
-        <!-- Main two-column game layout. -->
-        <Grid Grid.Row="1" Margin="0,12,0,0">
-            <Grid.RowDefinitions>
-                <!-- Production summary. -->
-                <RowDefinition Height="Auto" />
-                <!-- Progression content. -->
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <!-- Persistent studio controls beside the shared workspace. -->
+        <Grid x:Name="WorkspaceLayout" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320" />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-            <!-- Compact production and active-upgrade dashboard. -->
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <!-- Game identity -->
-                    <ColumnDefinition Width="*" />
-
-                    <!-- Main game action -->
-                    <ColumnDefinition Width="*" />
-
-                    <!-- Active upgrades -->
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Orientation="Vertical"
-                            Grid.Column="0">
-
-                    <Image Source="/Assets/Branding/Logo/logo_game_studio_clicker.png"
-                           MaxWidth="320"
-                           MaxHeight="160"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           Margin="0,0,0,4"
-                           Stretch="Uniform"
-                           RenderOptions.BitmapScalingMode="NearestNeighbor"
-                           SnapsToDevicePixels="True" />
-
-                    <Border Width="300"
-                            Padding="12"
-                            Margin="0,8,0,0"
-                            Background="{StaticResource SurfaceBrush}"
-                            BorderBrush="{StaticResource BorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="8">
-
-                        <StackPanel Orientation="Vertical">
-
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-
-
-                                <TextBlock Grid.Column="0"
-                                           Text="Studio Level"
-                                           FontSize="13"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource SecondaryTextBrush}" />
-                                <TextBlock Grid.Column="1"
-                                           Text="{Binding StudioLevel}"
-                                           FontSize="20"
-                                           FontWeight="Bold"
-                                           Foreground="{StaticResource PrimaryTextBrush}" />
-
-                            </Grid>
-
-                            <ProgressBar Minimum="0"
-                                         Margin="0,8,0,6"
-                                         IsIndeterminate="False">
-
-                                <ProgressBar.Style>
-                                    <Style TargetType="{x:Type ProgressBar}"
-                                           BasedOn="{StaticResource RoundedProgressBarStyle}">
-                                        <!-- Normal XP Progress -->
-                                        <Setter Property="Maximum"
-                                                Value="{Binding ExperienceNeededForNextLevel}" />
-                                        <Setter Property="Value"
-                                                Value="{Binding ExperienceIntoCurrentLevel, Mode=OneWay}" />
-
-                                        <Style.Triggers>
-                                            <!-- Full bar at max level -->
-                                            <DataTrigger Binding="{Binding IsStudioLevelMax}"
-                                                         Value="True">
-                                                <Setter Property="Maximum"
-                                                        Value="1" />
-                                                <Setter Property="Value"
-                                                        Value="1" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ProgressBar.Style>
-                            </ProgressBar>
-
-                            <TextBlock Text="{Binding StudioExperienceText}"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Center" />
-
-                        </StackPanel>
-
-                    </Border>
-                </StackPanel>
-                <!-- Manual coding and current production. -->
-                <Border Grid.Column="1"
-                        Width="350"
-                        HorizontalAlignment="Center"
-                        Padding="10"
-                        BorderThickness="1"
-                        Background="{StaticResource SurfaceBrush}"
-                        BorderBrush="{StaticResource BorderBrush}"
-                        CornerRadius="8">
-
-                    <StackPanel HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-
-                        <!-- Current resource total. -->
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center">
-                            <Image Source="/Assets/Icons/Currency/icon_lines_of_code.png"
-                                   Width="42"
-                                   Height="42"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,4,0"
-                                   Stretch="Uniform"
-                                   RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                   SnapsToDevicePixels="True"/>
-
-                            <TextBlock Text="{Binding LinesOfCode,
-                                       Converter={StaticResource CompactNumberConverter}}"
-                                       FontSize="24"
-                                       FontWeight="Bold"
-                                       VerticalAlignment="Center"/>
-
-                        </StackPanel>
-
-                        <!-- Main click action and floating +X feedback. -->
-                        <Grid x:Name="ClickFeedbackLayer"
-                              Height="70"
-                              Margin="0,4,0,4"
-                              ClipToBounds="False">
-                            <Button Content="Write Code"
-                                    Width="150"
-                                    Height="50"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    FontSize="16"
-                                    Command="{Binding WriteCodeCommand}"
-                                    PreviewMouseLeftButtonDown="WriteCodeButton_PreviewMouseLeftButtonDown"
-                                    Click="WriteCodeButton_Click"
-                                    Style="{StaticResource PrimaryActionButtonStyle}" />
-                        </Grid>
-
-                        <!-- Passive production. -->
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding LinesPerSecond,
-                                       Converter={StaticResource CompactNumberConverter}}"
-                                       FontSize="16"
-                                       FontWeight="SemiBold"
-                                       VerticalAlignment="Center"/>
-
-                            <Image Source="/Assets/Icons/Currency/icon_lines_of_code.png"
-                                   Width="24"
-                                   Height="24"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Center"
-                                   Margin="6,0,4,0"
-                                   Stretch="Uniform"
-                                   RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                   SnapsToDevicePixels="True"/>
-
-                            <TextBlock Text="/ second"
-                                       FontSize="14"
-                                       FontWeight="SemiBold"
-                                       VerticalAlignment="Center"
-                                       Foreground="{StaticResource SecondaryTextBrush}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-
-
-                <!-- Notifications and active upgrades share the right dashboard column. -->
-                <Grid Grid.Column="2"
-                      Margin="24,0,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <Border x:Name="NowPlayingPanel"
-                            Grid.Row="0"
-                            Width="220"
-                            Height="42"
-                            Margin="0,0,0,8"
-                            Background="{StaticResource SurfaceBrush}"
-                            BorderBrush="{StaticResource BorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
-                            Padding="10,7"
-                            HorizontalAlignment="Right">
-                        <Border.RenderTransform>
-                            <TranslateTransform X="16"/>
-                        </Border.RenderTransform>
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Visibility" Value="Hidden" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasOfflineEarnings}"
-                                                 Value="False">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard Storyboard="{StaticResource VisualizerFadeInStoryboard}" />
-                                        </DataTrigger.EnterActions>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-
-                        <Border.Triggers>
-                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                                <BeginStoryboard Storyboard="{StaticResource VisualizerJumpStoryboard}" />
-                            </EventTrigger>
-                        </Border.Triggers>
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel Orientation="Vertical"
-                                        Grid.Column="0">
-
-                                <TextBlock Text="NOW PLAYING "
-                                           FontFamily="{StaticResource DisplayFontFamily}"
-                                           FontSize="8"
-                                           Foreground="{StaticResource PrimaryCyanBrush}" />
-
-                                <TextBlock Text="{Binding CurrentSoundtrackTitle}"
-                                           FontSize="10"
-                                           FontFamily="{StaticResource DisplayFontFamily}"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource PrimaryTextBrush}"
-                                           Margin="0,5,0,0"
-                                           TextTrimming="CharacterEllipsis" />
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="1"
-                                        Height="22"
-                                        Margin="10,0,0,0"
-                                        VerticalAlignment="Bottom"
-                                        HorizontalAlignment="Right"
-                                        Orientation="Horizontal">
-
-                                <Border Width="4"
-                                        Height="20"
-                                        Margin="2,0,0,0"
-                                        VerticalAlignment="Bottom"
-                                        Background="{StaticResource PrimaryCyanBrush}"
-                                        CornerRadius="1"
-                                        RenderTransformOrigin="0.5,1">
-
-                                    <Border.RenderTransform>
-                                        <ScaleTransform x:Name="VisualizerBar1Scale"
-                                                        ScaleY="0.15"/>
-                                    </Border.RenderTransform>
-
-                                </Border>
-
-                                <Border Width="4"
-                                        Height="20"
-                                        Margin="2,0,0,0"
-                                        VerticalAlignment="Bottom"
-                                        Background="{StaticResource PrimaryCyanBrush}"
-                                        CornerRadius="1"
-                                        RenderTransformOrigin="0.5,1">
-
-                                    <Border.RenderTransform>
-                                        <ScaleTransform x:Name="VisualizerBar2Scale"
-                                                        ScaleY="0.25"/>
-                                    </Border.RenderTransform>
-
-                                </Border>
-
-                                <Border Width="4"
-                                        Height="20"
-                                        Margin="2,0,0,0"
-                                        VerticalAlignment="Bottom"
-                                        Background="{StaticResource PrimaryCyanBrush}"
-                                        CornerRadius="1"
-                                        RenderTransformOrigin="0.5,1">
-
-                                    <Border.RenderTransform>
-                                        <ScaleTransform x:Name="VisualizerBar3Scale"
-                                                        ScaleY="0.35"/>
-                                    </Border.RenderTransform>
-
-                                </Border>
-
-                                <Border Width="4"
-                                        Height="20"
-                                        Margin="2,0,0,0"
-                                        VerticalAlignment="Bottom"
-                                        Background="{StaticResource PrimaryCyanBrush}"
-                                        CornerRadius="1"
-                                        RenderTransformOrigin="0.5,1">
-
-                                    <Border.RenderTransform>
-                                        <ScaleTransform x:Name="VisualizerBar4Scale"
-                                                        ScaleY="0.45"/>
-                                    </Border.RenderTransform>
-
-                                </Border>
-
-                                <Border Width="4"
-                                        Height="20"
-                                        Margin="2,0,0,0"
-                                        VerticalAlignment="Bottom"
-                                        Background="{StaticResource PrimaryCyanBrush}"
-                                        CornerRadius="1"
-                                        RenderTransformOrigin="0.5,1">
-
-                                    <Border.RenderTransform>
-                                        <ScaleTransform x:Name="VisualizerBar5Scale"
-                                                        ScaleY="0.55"/>
-                                    </Border.RenderTransform>
-
-                                </Border>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-
-                    <!-- Temporary message shown when offline progress is applied. -->
-                    <Border Grid.Row="0"
-                            MaxWidth="360"
-                            Padding="10,8"
-                            Margin="0,0,0,8"
-                            HorizontalAlignment="Center"
-                            Background="{StaticResource SurfaceBrush}"
-                            BorderBrush="{StaticResource BorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
-                            Opacity="0">
-
-                        <Border.RenderTransform>
-                            <TranslateTransform X="16" />
-                        </Border.RenderTransform>
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Visibility" Value="Hidden" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasOfflineEarnings}"
-                                                 Value="True">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard Storyboard="{StaticResource OfflineEarningsStoryboard}" />
-                                        </DataTrigger.EnterActions>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-
-                        <TextBlock Text="{Binding OfflineEarningsMessage}"
-                                   Foreground="{StaticResource SecondaryTextBrush}"
-                                   FontSize="13"
-                                   FontWeight="SemiBold"
-                                   TextWrapping="Wrap"
-                                   TextAlignment="Center" />
-                    </Border>
-
-                    <!-- Active upgrades. -->
-                    <views:ActiveUpgradesView Grid.Row="1"
-                                              Margin="0,8,0,0"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Bottom"/>
-                </Grid>
-            </Grid>
-
-            <!-- Switchable navigation area. -->
-            <Grid Grid.Row="1"
-                  Margin="0,16,0,0">
-
+            <Grid x:Name="StudioSidebar" Grid.Column="0">
                 <Grid.RowDefinitions>
-                    <!-- Page navigation -->
                     <RowDefinition Height="Auto" />
-
-                    <!-- Selected page -->
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Right">
+                <views:StudioView Grid.Row="0"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Top" />
 
-                    <!-- Statistics navigation -->
-                    <Button Command="{Binding ToggleStatisticsCommand}"
-                            ToolTip="Show or hide statistics"
-                            Click="MenuButton_Click">
+                <StackPanel Grid.Row="1" Margin="4,24,4,0">
+                    <TextBlock Text="LINES OF CODE"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource SecondaryTextBrush}" />
 
-                        <Button.Style>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource PrimaryButtonStyle}">
-                                <Setter Property="Margin"
-                                        Value="4" />
-                                <Setter Property="Width"
-                                        Value="52" />
-                                <Setter Property="Height"
-                                        Value="52" />
-                                <Setter Property="Padding"
-                                        Value="6" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsStatisticsViewVisible}"
-                                                 Value="True">
-                                        <Setter Property="Background"
-                                                Value="{StaticResource BorderBrush}" />
-                                        <Setter Property="BorderBrush"
-                                                Value="{StaticResource PrimaryCyanBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-
-
-                        <Image Source="/Assets/Icons/Navigation/icon_statistics.png"
-                               Width="40"
-                               Height="40"
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,20">
+                        <Image Source="/Assets/Icons/Currency/icon_lines_of_code.png"
+                               Width="30"
+                               Height="30"
+                               Margin="0,0,8,0"
+                               VerticalAlignment="Center"
+                               Stretch="Uniform"
                                RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                        <TextBlock Text="{Binding LinesOfCode,
+                                   Converter={StaticResource CompactNumberConverter}}"
+                                   FontSize="30"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource SuccessBrush}" />
+                    </StackPanel>
 
-                    </Button>
-
-                    <!-- Achievements navigation -->
-                    <Button Command="{Binding ToggleAchievementsCommand}"
-                            ToolTip="Show or hide achievements"
-                            Click="MenuButton_Click">
-
-                        <Button.Style>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource AchievementButtonStyle}">
-                                <Setter Property="Margin"
-                                        Value="4" />
-                                <Setter Property="Width"
-                                        Value="52" />
-                                <Setter Property="Height"
-                                        Value="52" />
-                                <Setter Property="Padding"
-                                        Value="6" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsAchievementsViewVisible}"
-                                                 Value="True">
-                                        <Setter Property="Background"
-                                                Value="{StaticResource BorderBrush}" />
-                                        <Setter Property="BorderBrush"
-                                                Value="{StaticResource WarningBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-
-                        <Image Source="/Assets/Icons/Navigation/icon_achievements.png"
-                               Width="40"
-                               Height="40"
-                               RenderOptions.BitmapScalingMode="NearestNeighbor" />
-
-                    </Button>
-
-                    <!-- Settings navigation -->
-                    <Button Command="{Binding ToggleSettingsCommand}"
-                            ToolTip="Show or hide settings"
-                            Click="MenuButton_Click">
-
-                        <Button.Style>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource SettingsButtonStyle}">
-                                <Setter Property="Margin"
-                                        Value="4" />
-                                <Setter Property="Width"
-                                        Value="52" />
-                                <Setter Property="Height"
-                                        Value="52" />
-                                <Setter Property="Padding"
-                                        Value="6" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsSettingsViewVisible}"
-                                                 Value="True">
-                                        <Setter Property="Background"
-                                                Value="{StaticResource BorderBrush}" />
-                                        <Setter Property="BorderBrush"
-                                                Value="{StaticResource SecondaryTextBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-
-                        <Image Source="/Assets/Icons/Navigation/icon_settings.png"
-                               Width="40"
-                               Height="40"
-                               RenderOptions.BitmapScalingMode="NearestNeighbor" />
-
-                    </Button>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="{Binding LinesPerSecond,
+                                       Converter={StaticResource CompactNumberConverter}}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource SuccessBrush}" />
+                            <TextBlock Text="per second"
+                                       Margin="0,4,0,0"
+                                       FontSize="12"
+                                       Foreground="{StaticResource SecondaryTextBrush}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="{Binding LinesPerClick,
+                                       Converter={StaticResource CompactNumberConverter}}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource PrimaryCyanBrush}" />
+                            <TextBlock Text="per click"
+                                       Margin="0,4,0,0"
+                                       FontSize="12"
+                                       Foreground="{StaticResource SecondaryTextBrush}" />
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
 
-                <!-- All navigation views occupy this same region. -->
-                <Grid Grid.Row="1"
-                      Margin="0,12,0,0"
+                <!-- The main action stays available on every workspace page. -->
+                <Grid x:Name="ClickFeedbackLayer"
+                      Grid.Row="3"
+                      Height="100"
+                      Margin="0,16,0,0"
                       ClipToBounds="False">
-
-                    <!-- Worker page -->
-                    <views:WorkerUpgradesView/>
-
-                    <!-- Statistics page -->
-                    <views:StatisticsView Panel.ZIndex="1">
-                        <views:StatisticsView.OpacityMask>
-                            <LinearGradientBrush StartPoint="0,-0.01"
-                                                 EndPoint="0,1">
-
-                                <!--Visible area above the moving boundary-->
-                                <GradientStop Color="White"
-                                              Offset="0"/>
-                                <GradientStop Color="White"
-                                              Offset="0"/>
-
-                                <!--Hidden area below the moving boundary-->
-                                <GradientStop Color="Transparent"
-                                              Offset="0"/>
-                                <GradientStop Color="Transparent"
-                                              Offset="1"/>
-
-                            </LinearGradientBrush>
-                        </views:StatisticsView.OpacityMask>
-
-                        <views:StatisticsView.Style>
-                            <Style TargetType="{x:Type views:StatisticsView}">
-                                <Setter Property="IsHitTestVisible"
-                                        Value="False" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsStatisticsViewVisible}"
-                                                 Value="True">
-                                        <Setter Property="IsHitTestVisible"
-                                                Value="True" />
-
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard Storyboard="{StaticResource PageRevealStoryboard}" />
-                                        </DataTrigger.EnterActions>
-
-                                        <DataTrigger.ExitActions>
-                                            <BeginStoryboard Storyboard="{StaticResource PageRevealOutStoryboard}" />
-                                        </DataTrigger.ExitActions>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </views:StatisticsView.Style>
-                    </views:StatisticsView>
-
-                    <!-- Achievements page -->
-                    <views:AchievementsView Panel.ZIndex="2">
-                        <views:AchievementsView.OpacityMask>
-                            <LinearGradientBrush StartPoint="0,-0.01"
-                                                 EndPoint="0,1">
-
-                                <!-- Visible area above the moving boundary -->
-                                <GradientStop Color="White"
-                                              Offset="0" />
-                                <GradientStop Color="White"
-                                              Offset="0" />
-
-                                <!-- Hidden area below the moving boundary -->
-                                <GradientStop Color="Transparent"
-                                              Offset="0" />
-                                <GradientStop Color="Transparent"
-                                              Offset="1" />
-                            </LinearGradientBrush>
-                        </views:AchievementsView.OpacityMask>
-
-                        <views:AchievementsView.Style>
-                            <Style TargetType="{x:Type views:AchievementsView}">
-                                <Setter Property="IsHitTestVisible"
-                                        Value="False" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsAchievementsViewVisible}"
-                                                 Value="True">
-                                        <Setter Property="IsHitTestVisible"
-                                                Value="True" />
-
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard Storyboard="{StaticResource PageRevealStoryboard}" />
-                                        </DataTrigger.EnterActions>
-
-                                        <DataTrigger.ExitActions>
-                                            <BeginStoryboard Storyboard="{StaticResource PageRevealOutStoryboard}" />
-                                        </DataTrigger.ExitActions>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </views:AchievementsView.Style>
-                    </views:AchievementsView>
-
-                    <!-- Settings page -->
-                    <views:SettingsView Panel.ZIndex="3">
-                        <views:SettingsView.OpacityMask>
-                            <LinearGradientBrush StartPoint="0,-0.01"
-                                                 EndPoint="0,1">
-
-                                <!-- Visible area above the moving boundary -->
-                                <GradientStop Color="White"
-                                              Offset="0" />
-                                <GradientStop Color="White"
-                                              Offset="0" />
-
-                                <!-- Hidden area below the moving boundary -->
-                                <GradientStop Color="Transparent"
-                                              Offset="0" />
-                                <GradientStop Color="Transparent"
-                                              Offset="1" />
-                            </LinearGradientBrush>
-                        </views:SettingsView.OpacityMask>
-
-                        <views:SettingsView.Style>
-                            <Style TargetType="{x:Type views:SettingsView}">
-                                <Setter Property="IsHitTestVisible"
-                                        Value="False" />
-
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsSettingsViewVisible}"
-                                                 Value="True">
-                                        <Setter Property="IsHitTestVisible"
-                                                Value="True" />
-
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard Storyboard="{StaticResource PageRevealStoryboard}" />
-                                        </DataTrigger.EnterActions>
-
-                                        <DataTrigger.ExitActions>
-                                            <BeginStoryboard Storyboard="{StaticResource PageRevealOutStoryboard}" />
-                                        </DataTrigger.ExitActions>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </views:SettingsView.Style>
-                    </views:SettingsView>
-
+                    <Button x:Name="WriteCodeButton"
+                            Height="64"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            Command="{Binding WriteCodeCommand}"
+                            PreviewMouseLeftButtonDown="WriteCodeButton_PreviewMouseLeftButtonDown"
+                            Click="WriteCodeButton_Click"
+                            Style="{StaticResource PrimaryActionButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Assets/Icons/Currency/icon_lines_of_code.png"
+                                   Width="26"
+                                   Height="26"
+                                   Margin="0,0,10,0"
+                                   Stretch="Uniform"
+                                   RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                            <TextBlock Text="Write Code"
+                                       FontSize="17"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </Grid>
-                <!-- Shared content region -->
             </Grid>
-            <!-- Switchable lower area -->
+
+            <Border Grid.Column="1"
+                    Width="1"
+                    Margin="0,0,0,8"
+                    Background="{StaticResource BorderBrush}"
+                    IsHitTestVisible="False" />
+
+            <TabControl x:Name="SharedWorkspace"
+                        Grid.Column="2"
+                        SelectedIndex="0"
+                        Style="{StaticResource WorkspaceTabControlStyle}"
+                        ItemContainerStyle="{StaticResource WorkspaceTabItemStyle}"
+                        SelectionChanged="SharedWorkspace_SelectionChanged">
+                <TabItem Header="Workers">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Your Team"
+                                   Margin="0,0,0,18"
+                                   Style="{StaticResource SectionHeadingTextStyle}" />
+                        <views:WorkerUpgradesView Grid.Row="1" />
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Achievements">
+                    <views:AchievementsView />
+                </TabItem>
+
+                <TabItem Header="Stats">
+                    <views:StatisticsView />
+                </TabItem>
+
+                <TabItem Header="Settings">
+                    <views:SettingsView />
+                </TabItem>
+            </TabControl>
         </Grid>
-        <!-- Main two-row interface -->
     </Grid>
-    <!-- Window root -->
 </Window>
